@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width,initial-scale=1"><title>报事报修</title><link href=http://www.homeamc.cn/oa/static/dist/static/css/app.6cb7d45c78e09b4e973a46c8e2313d49.css rel=stylesheet></head><body><div id=app></div><script type=text/javascript src=http://www.homeamc.cn/oa/static/dist/static/js/manifest.101ff552f4bee8d5aeec.js></script><script type=text/javascript src=http://www.homeamc.cn/oa/static/dist/static/js/app.455fd01f1a0156707e11.js></script></body><script>var userIds = 'yechangqing'
+			// var userIds = '{userId}'
+			function getLocal (key = STORAGE_USER_KEY) {
+				return JSON.parse(window.localStorage.getItem(key))
+			}
+			function setLocal (res, key = STORAGE_USER_KEY, isSaveOldData = false) {
+			//第三个参数是true的话,会增加数据而不是重新设置,res必须是数组
+				if (isSaveOldData) {
+					if(getLocal(key)) {
+						let oldData = getLocal(key);
+						return window.localStorage.setItem(key, JSON.stringify(oldData.concat(res)))
+					}
+				}
+				return window.localStorage.setItem(key, JSON.stringify(res))
+			}
+			setLocal(userIds, 'userId')</script></html>
