@@ -3,28 +3,29 @@
 
         <nav class="Equipment"><p>填写报修缺陷信息</p> <div>设备设施</div></nav>
         <div class="Equipment_main">
-            <div class="Equipment_main_ last"><span>紧急</span><img class="isOpen" @click="isOpen = !isOpen" :src="isOpen ? img[1] : img[0]" alt=""></div>
+            <div class="Equipment_main_ last"><span>紧急</span><img class="isOpen" @click="list.emerStatus == 1 ? list.emerStatus = 2 : list.emerStatus = 1" :src="list.emerStatus == 1 ? img[0] : img[1]" alt=""></div>
             <div class="Equipment_main_" @click="ShowList = true">
                 <span>名称</span><p class="input input_mores">{{type.name}}</p>
                 <img class="more" src="../../assets/img/more.png" alt="">
             </div>
-            <div class="Equipment_main_"><span>编号</span><p class="input input_mores">{{type.num}}</p></div>
-            <div class="Equipment_main_"><span>地点</span><van-field class="input" v-model="type.address" type="textarea" @focus="focus" @blur="blur" placeholder="设备自动带出" rows="1" autosize /></div>
-            <div class="Equipment_main_" @click="ShowList = true">
-                <span>类别</span><p class="input input_mores"></p>
+            <div class="Equipment_main_"><span>编号</span><p class="input input_mores input_moress">{{type.num}}</p></div>
+            <div class="Equipment_main_"><span>地点</span><p class="input input_mores input_moress">{{type.address}}</p></div>
+            <div class="Equipment_main_" @click="problem = true">
+                <span>类别</span><p class="input input_mores">{{problemList.name}}</p>
                 <img class="more" src="../../assets/img/more.png" alt="">
             </div>
-            <div class="Equipment_main_"><span>描述</span><van-field class="input" v-model="message" type="textarea" @focus="focus" @blur="blur" placeholder="请对缺陷情况进行适当描述" rows="1" autosize /></div>
-            <div class="Equipment_main_"><span>备注</span><van-field class="input" v-model="message" type="textarea" @focus="focus" @blur="blur" placeholder="添加备注" rows="1" autosize /></div>
+            <div class="Equipment_main_"><span>描述</span><van-field class="input" v-model="list.proDel" type="textarea" placeholder="请对缺陷情况进行适当描述" rows="1" autosize /></div>
+            <div class="Equipment_main_"><span>备注</span><van-field class="input" v-model="list.remarks" type="textarea" placeholder="添加备注" rows="1" autosize /></div>
         </div>
         <nav class="Equipment"><p>添加语音或拍照</p></nav>
         <div class="Equipment_main">
             <Photo-Speech></Photo-Speech>
         </div>
 
-        <div class="Equipment_footer" v-if="isFocus">确定提交</div>
+        <div class="Equipment_footer" v-if="isFocus" @click="Add">确定提交</div>
 
         <van-actionsheet v-if="lists" v-model="ShowList" :actions="lists" @select="onSelect" />
+        <van-actionsheet v-if="getRepairCategoryList" v-model="problem" :actions="getRepairCategoryList" @select="onProblem" />
 
     </div>
 </template>
@@ -35,8 +36,8 @@ export default {
     data() {
         return {
             img:[require('../../assets/img/no.png'),require('../../assets/img/open.png')],isOpen:false,isVoice:false,message:'',
-            isFocus: true, type:'', ShowList: false,
-            list:{ equfacId:'', repairSourceId: 1, emerStatus: 1, categoryId:'', proDel:'', remarks:'', happenAdd:'', audioUrl:'', path:'' }
+            type:'', ShowList: false, problem: false, problemList:'',
+            list:{ equfacId:'', repairSourceId: 2, emerStatus: 1, categoryId:'', proDel:'', remarks:'', happenAdd:'', audioUrl:'', path:'' }
         }
     },
     components: {
@@ -44,32 +45,77 @@ export default {
     },
     beforeCreate(){
         this.$store.dispatch('list')
+        this.$store.dispatch('getRepairCategoryList')
     },
     computed: {
         lists(){
             let array = []
-            for(let val of this.$store.state.list){
-                array.push({ name: val.equfac_name, equfacId: val.id, num: val.num, address: val.address })
+            if(this.$store.state.list == ''){
+                array.push({ name:'暂无', disabled: true })
+            }else{
+                for(let val of this.$store.state.list){
+                    array.push({ name: val.equfac_name, equfacId: val.id, num: val.num, address: val.address })
+                }
             }
             return array
-        }
+        },
+        getRepairCategoryList(){
+            return this.$store.state.getRepairCategoryList
+        },
+        imgFile(){
+            return this.$store.state.imgFile
+        },
+        serverID(){
+            return this.$store.state.serverId
+        },
+        isFocus(){
+            return this.$store.state.isFocus
+        },
     },
     created(){
         document.title = '设备设施'
         
+        // this.focus()
     },
     methods: {
-        focus(){
-            var u = navigator.userAgent
-            u.indexOf('Android') > -1 || u.indexOf('Linux') > -1 ? this.isFocus = false : ''
-        },
-        blur(){
-            this.isFocus = true
-        },
         onSelect(item) {
             this.ShowList = false
             this.type = item
-            // this.$store.dispatch('gettallyType', item.id)
+        },
+        onProblem(item) {
+            this.problem = false
+            this.problemList = item
+        },
+        Add(){
+            if(this.type != ''){
+                this.list.equfacId = this.type.equfacId
+                this.list.categoryId = this.problemList.id
+                this.list.happenAdd = this.type.address
+                this.list.audioUrl = this.serverID
+                this.$toast.loading({
+                    mask: true,
+                    message: '加载中...',
+                    duration:0
+                })
+                if(this.imgFile != ''){
+                    this.$store.dispatch('uploadPicture')
+                    .then(res =>{
+                        // console.log(res)
+                        this.list.path = res.message
+                        this.$store.dispatch('reportRepair', this.list)
+                    })
+                    .catch(err =>{})
+                }else{
+                    this.$store.dispatch('reportRepair', this.list)
+                }
+            }else{
+                this.$dialog.alert({
+                    title: '必填信息为空！',
+                    message: ''
+                }).then(() => {
+                // on close
+                });
+            }
         },
     },
 }
@@ -99,7 +145,8 @@ export default {
         width: 100%; line-height: 0.9rem; border-bottom: 0.01rem solid #CECECE; display: flex; justify-content: space-between; padding-bottom: 0.02rem;
         .input{ width: 85%; padding: 0; margin-top: 0.22rem; padding-bottom: 0.22rem; color:rgba(75,75,75,1); }
         .input_more{ width: 65%; }
-        .input_mores{ width: 80%; margin: 0; padding: 0; }
+        .input_mores{ width: 77%; margin: 0; padding: 0; }
+        .input_moress{ width: 85%; }
         span{ color:rgba(0,0,0,1); .font2; }
         .sweep{ width: 0.4rem; height: 0.4rem; margin-top: 0.25rem; }
         .more{ width: 0.16rem; height: 0.29rem; margin-top: 0.3rem; }

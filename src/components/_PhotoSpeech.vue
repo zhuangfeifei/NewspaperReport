@@ -49,19 +49,16 @@ export default {
         
     },
     beforeCreate(){
-        this.$store.dispatch('shire')
+        
     },
     computed: {
-        shire(){
-            if(this.$store.state.shire == '') this.$store.commit('SHIRE')
-            return this.$store.state.shire
-        },
         serverId(){
             return this.$store.state.serverId
         },
     },
     created(){
         // console.log(this.voice, this.voice != false ? true : this.voice)
+        
         this.wx()
     },
     methods: {
@@ -92,7 +89,6 @@ export default {
                 this.recording.recordTimer = setTimeout(()=>{
                     wx.startRecord({
                         success: res =>{
-                            // localStorage.rainAllowRecord = 'true';
                             // console.log('开始')
                         },
                         cancel: function () {
@@ -146,21 +142,25 @@ export default {
             });
         },
         wx(){
-            wx.config({
-                beta: true,// 必须这么写，否则wx.invoke调用形式的jsapi会有问题
-                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-                appId: this.shire.corpid, // 必填，企业微信的corpID
-                timestamp: this.shire.timestamp, // 必填，生成签名的时间戳
-                nonceStr: this.shire.nonce, // 必填，生成签名的随机串
-                signature: this.shire.signature,// 必填，签名，见附录1
-                jsApiList: ['startRecord','stopRecord','uploadVoice'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
-            });
-            wx.ready(()=>{
-                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
-                
-                // console.log(1)
-                
-            });
+            this.$store.dispatch('shire')
+            .then(res =>{
+                wx.config({
+                    beta: true,// 必须这么写，否则wx.invoke调用形式的jsapi会有问题
+                    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                    appId: res.corpid, // 必填，企业微信的corpID
+                    timestamp: res.timestamp, // 必填，生成签名的时间戳
+                    nonceStr: res.nonce, // 必填，生成签名的随机串
+                    signature: res.signature,// 必填，签名，见附录1
+                    jsApiList: ['startRecord','stopRecord','uploadVoice'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                });
+                wx.ready(()=>{
+                    // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                    
+                    // console.log(1)
+                    
+                });
+            })
+            .catch(err => console.log(err))
         },
     },
     destroyed(){

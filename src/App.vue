@@ -3,7 +3,7 @@
 
     <router-view/>
 
-    <van-loading v-if="isLoading" class="apploading" size="40px" color="#219DB9"/>
+    <van-loading v-if="isLoading" id="apploading" size="40px" color="#219DB9"/>
 
   </div>
 </template>
@@ -16,6 +16,9 @@ export default {
       return this.$store.state.userId == null ? true : false || this.$store.state.isLoading
     }
   },
+  beforeCreate(){
+    
+  }
 }
 </script>
 
@@ -29,7 +32,7 @@ export default {
 }
 
 
-.apploading{
+#apploading{
   position: absolute; top: calc(50% - 20px); left: calc(50% - 20px); z-index: 10000;
 }
 </style>

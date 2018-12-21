@@ -24,6 +24,9 @@ const Check = resolve => require(['@/pages/Administration/Check'], resolve)
 const Statistical = resolve => require(['@/pages/Administration/Statistical'], resolve)
 const Management = resolve => require(['@/pages/Administration/Management'], resolve)
 const AddEmployees = resolve => require(['@/pages/Administration/AddEmployees'], resolve)
+const CheckingPlan = resolve => require(['@/pages/Administration/CheckingPlan'], resolve)
+const CheckingPlanDtail = resolve => require(['@/pages/Administration/CheckingPlanDtail'], resolve)
+const CheckingPlanAdd = resolve => require(['@/pages/Administration/CheckingPlanAdd'], resolve)
 
 Vue.use(Router)
 
@@ -51,6 +54,9 @@ export default new Router({
     { path:'/Statistical', component: Statistical },
     { path:'/Management', component: Management },
     { path:'/AddEmployees', component: AddEmployees },
+    { path:'/CheckingPlan', component: CheckingPlan },
+    { path:'/CheckingPlanDtail', component: CheckingPlanDtail },
+    { path:'/CheckingPlanAdd', component: CheckingPlanAdd },
 
     { path: '/*', redirect: '/', },
   ]

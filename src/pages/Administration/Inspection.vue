@@ -1,31 +1,31 @@
 <template>
     <div id="Inspection">
 
-        <nav class="Inspection"><p>填写巡检缺陷信息</p></nav>
+        <nav class="Inspection"><p>填写报修缺陷信息</p></nav>
         <div class="Inspection_main">
-            <div class="Inspection_main_ last"><span>紧急</span><img class="isOpen" @click="isOpen = !isOpen" :src="isOpen ? img[1] : img[0]" alt=""></div>
-            <div class="Inspection_main_">
-                <span>名称</span><van-field class="input input_more" v-model="message" type="textarea" placeholder="请选择缺陷设备名称" rows="1" autosize />
-                <img class="sweep" src="../../assets/img/sweep.png" alt="">
+            <div class="Inspection_main_ last"><span>紧急</span><img class="isOpen" @click="list.emerStatus == 1 ? list.emerStatus = 2 : list.emerStatus = 1" :src="list.emerStatus == 1 ? img[0] : img[1]" alt=""></div>
+            <div class="Inspection_main_" @click="ShowList = true">
+                <span>名称</span><p class="input input_mores">{{type.name}}</p>
                 <img class="more" src="../../assets/img/more.png" alt="">
             </div>
-            <div class="Inspection_main_"><span>编号</span><van-field class="input" v-model="message" type="textarea" placeholder="设备自动带出" rows="1" autosize /></div>
-            <div class="Inspection_main_"><span>地点</span><van-field class="input" v-model="message" type="textarea" placeholder="设备自动带出" rows="1" autosize /></div>
-            <div class="Inspection_main_">
-                <span>类别</span><van-field class="input input_mores" v-model="message" type="textarea" placeholder="请选择问题类别" rows="1" autosize />
+            <div class="Inspection_main_"><span>编号</span><p class="input input_mores input_moress">{{type.num}}</p></div>
+            <div class="Inspection_main_"><span>地点</span><p class="input input_mores input_moress">{{type.address}}</p></div>
+            <div class="Inspection_main_" @click="problem = true">
+                <span>类别</span><p class="input input_mores">{{problemList.name}}</p>
                 <img class="more" src="../../assets/img/more.png" alt="">
             </div>
-            <div class="Inspection_main_"><span>描述</span><van-field class="input" v-model="message" type="textarea" placeholder="请对缺陷情况进行适当描述" rows="1" autosize /></div>
-            <div class="Inspection_main_"><span>备注</span><van-field class="input" v-model="message" type="textarea" placeholder="添加备注" rows="1" autosize /></div>
+            <div class="Inspection_main_"><span>描述</span><van-field class="input" v-model="list.proDel" type="textarea" placeholder="请对缺陷情况进行适当描述" rows="1" autosize /></div>
+            <div class="Inspection_main_"><span>备注</span><van-field class="input" v-model="list.remarks" type="textarea" placeholder="添加备注" rows="1" autosize /></div>
         </div>
         <nav class="Inspection"><p>添加语音或拍照</p></nav>
         <div class="Inspection_main">
             <Photo-Speech></Photo-Speech>
         </div>
 
-        
+        <div class="Inspection_footer" v-if="isFocus" @click="Add">确定提交</div>
 
-        <div class="Inspection_footer">确定提交</div>
+        <van-actionsheet v-if="lists" v-model="ShowList" :actions="lists" @select="onSelect" />
+        <van-actionsheet v-if="getRepairCategoryList" v-model="problem" :actions="getRepairCategoryList" @select="onProblem" />
 
     </div>
 </template>
@@ -35,21 +35,87 @@ import PhotoSpeech from '../../components/_PhotoSpeech'
 export default {
     data() {
         return {
-            img:[require('../../assets/img/no.png'),require('../../assets/img/open.png')],isOpen:false,isVoice:false,message:''
+            img:[require('../../assets/img/no.png'),require('../../assets/img/open.png')],isOpen:false,isVoice:false,message:'',
+            type:'', ShowList: false, problem: false, problemList:'',
+            list:{ equfacId:'', repairSourceId: 0, emerStatus: 1, categoryId:'', proDel:'', remarks:'', happenAdd:'', audioUrl:'', path:'' }
         }
     },
     components: {
         'Photo-Speech': PhotoSpeech
     },
+    beforeCreate(){
+        this.$store.dispatch('list')
+        this.$store.dispatch('getRepairCategoryList')
+    },
     computed: {
-        
+        lists(){
+            let array = []
+            if(this.$store.state.list == ''){
+                array.push({ name:'暂无', disabled: true })
+            }else{
+                for(let val of this.$store.state.list){
+                    array.push({ name: val.equfac_name, equfacId: val.id, num: val.num, address: val.address })
+                }
+            }
+            return array
+        },
+        getRepairCategoryList(){
+            return this.$store.state.getRepairCategoryList
+        },
+        imgFile(){
+            return this.$store.state.imgFile
+        },
+        serverID(){
+            return this.$store.state.serverId
+        },
+        isFocus(){
+            return this.$store.state.isFocus
+        },
     },
     created(){
-        document.title = '随机巡检'
+        document.title = '设备设施'
         
+        // this.focus()
     },
     methods: {
-        
+        onSelect(item) {
+            this.ShowList = false
+            this.type = item
+        },
+        onProblem(item) {
+            this.problem = false
+            this.problemList = item
+        },
+        Add(){
+            if(this.type != ''){
+                this.list.categoryId = this.problemList.id
+                this.list.happenAdd = this.type.address
+                this.list.audioUrl = this.serverID
+                this.$toast.loading({
+                    mask: true,
+                    message: '加载中...',
+                    duration:0
+                })
+                if(this.imgFile != ''){
+                    this.$store.dispatch('uploadPicture')
+                    .then(res =>{
+                        // console.log(res)
+                        this.list.path = res.message
+                        this.$store.dispatch('reportRepair', this.list)
+                    })
+                    .catch(err =>{})
+                }else{
+                    this.$store.dispatch('reportRepair', this.list)
+                }
+            }else{
+                this.$dialog.alert({
+                    title: '必填信息为空！',
+                    message: ''
+                }).then(() => {
+                // on close
+                });
+            }
+        },
     },
 }
 </script>
@@ -66,10 +132,6 @@ export default {
 .Inspection{
     width: 100%; height: 1rem; display: flex; justify-content: space-between; padding: 0.45rem 0.3rem;
     p{ color: #808080; font-size: 0.28rem; }
-    div{ 
-        width: 1.4rem; height: 0.4rem; text-align: center; line-height: 0.4rem; border: 0.02rem solid #EF3F4A; border-radius: 0.2rem; 
-        font-size: 0.24rem; color: #EF3F4A;
-    }
 }
 
 .Inspection_main{
@@ -78,7 +140,8 @@ export default {
         width: 100%; line-height: 0.9rem; border-bottom: 0.01rem solid #CECECE; display: flex; justify-content: space-between; padding-bottom: 0.02rem;
         .input{ width: 85%; padding: 0; margin-top: 0.22rem; padding-bottom: 0.22rem; color:rgba(75,75,75,1); }
         .input_more{ width: 65%; }
-        .input_mores{ width: 77%; }
+        .input_mores{ width: 77%; margin: 0; padding: 0; }
+        .input_moress{ width: 85%; }
         span{ color:rgba(0,0,0,1); .font2; }
         .sweep{ width: 0.4rem; height: 0.4rem; margin-top: 0.25rem; }
         .more{ width: 0.16rem; height: 0.29rem; margin-top: 0.3rem; }

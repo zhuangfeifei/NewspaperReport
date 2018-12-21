@@ -1,5 +1,5 @@
 <template>
-    <div class="bottom">
+    <div class="bottom" v-if="userId">
 
         <div class="footer">
             <div v-for="(item,index) in list" :key="index" @click="changes(index)">
@@ -25,7 +25,10 @@ export default {
     computed:{
         actives(){
             return this.$store.state.active
-        }
+        },
+        userId(){
+            return this.$store.state.userId
+        },
     },
     methods: {
         changes(index){

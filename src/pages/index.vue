@@ -1,7 +1,7 @@
 <template>
     <div id="index">
 
-        <router-view v-if="isIf"></router-view>
+        <router-view></router-view>
 
         <bottom-item></bottom-item>
 
@@ -22,17 +22,10 @@ export default {
         
     },
     computed:{
-        isIf(){
-            if(this.$store.state.userId != ''){
-                return true
-            }
-        }
+        
     },
     mounted(){
-        if(this.$store.state.userId == null){
-            console.log('12313')
-            this.$router.go(0)
-        }
+        
     },
     methods: {
         

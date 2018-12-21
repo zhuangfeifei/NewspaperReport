@@ -30,7 +30,6 @@ export default {
             img:[require('../../assets/img/no.png'),require('../../assets/img/open.png')],isOpen:false,isVoice:false,message:'',
             show: false, categoryId:'',
             list:{ equfacId:'', repairSourceId: 1, emerStatus: 1, categoryId:'', proDel:'', remarks:'', happenAdd:'', audioUrl:'', path:'' },
-            isFocus:true
         }
     },
     components: {
@@ -49,12 +48,14 @@ export default {
         serverID(){
             return this.$store.state.serverId
         },
+        isFocus(){
+            return this.$store.state.isFocus
+        },
     },
     created(){
         document.title = '日常报修'
         // console.log(wx)
         
-        this.focus()
     },
     methods: {
         onSelect(item){
@@ -64,6 +65,7 @@ export default {
         },
         Add(){
             if(this.list.categoryId != '' && this.list.proDel != '' && this.list.happenAdd != ''){
+                this.list.audioUrl = this.serverID
                 this.$toast.loading({
                     mask: true,
                     message: '加载中...',
@@ -74,12 +76,10 @@ export default {
                     .then(res =>{
                         // console.log(res)
                         this.list.path = res.message
-                        this.list.audioUrl = this.serverID
                         this.$store.dispatch('reportRepair', this.list)
                     })
                     .catch(err =>{})
                 }else{
-                    this.list.audioUrl = this.serverID
                     this.$store.dispatch('reportRepair', this.list)
                 }
             }else{
@@ -90,14 +90,6 @@ export default {
                 // on close
                 });
             }
-        },
-        focus(){
-            $(document).ready(()=>{
-                var win_h = $(window).height();//关键代码
-                window.addEventListener('resize', ()=> {
-                    $(window).height() < win_h ? this.isFocus = false : this.isFocus = true
-                });
-            })
         },
         //  @focus="focus" @blur="blur"
         // focus(){

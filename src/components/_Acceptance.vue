@@ -10,7 +10,7 @@
 
         <div class="_Acceptance_main">
             <div class="_Acceptance_main_list">
-                <span>报修分类</span><div>{{repairDetail.rp[0].category_name}}<div>日常报修</div></div>
+                <span>报修分类</span><div>{{repairDetail.rp[0].category_name}}<div>{{repairDetail.rp[0].repair_source_id == 1 ? '日常报修' : repairDetail.rp[0].repair_source_id == 2 ? '设备设施' : '巡检'}}</div></div>
             </div>
             <div class="_Acceptance_main_list">
                 <span>问题描述</span><div>{{repairDetail.rp[0].pro_del}}</div>
@@ -26,15 +26,22 @@
                 <div v-if="repairDetail.rp[0].path != ''" @click="imgPreview(repairDetail.rp[0].path)">
                     <img class="_Acceptance_content_img" v-for="(item,index) in repairDetail.rp[0].path.split(',')" :key="index" :src="imgUrl+item" alt="">
                 </div>
+                <div v-else>无</div>
             </div>
             <div class="_Acceptance_main_list">
                 <span>语音</span><div class="audio" @click="play(repairDetail.rp[0].audio_url)">语音({{repairDetail.rp[0].audio_url != '' ? 1 : 0}})</div>
             </div>
-            <div class="_Acceptance_main_list" v-if="repairDetail.rp[0].status == 0">
+            <div class="_Acceptance_main_list">
                 <span>报修人</span><div>{{repairDetail.rp[0].repairDeptName}} {{repairDetail.rp[0].repairUserName}}</div>
             </div>
-            <div class="_Acceptance_main_list" v-if="repairDetail.rp[0].status == 0">
+            <div class="_Acceptance_main_list">
                 <span>报修时间</span><div>{{repairDetail.rp[0].create_time}}</div>
+            </div>
+            <div class="_Acceptance_main_list" v-if="repairDetail.rp[0].status > 0">
+                <span>维修人</span><div>{{repairDetail.rp[0].dealDeptname}} {{repairDetail.rp[0].dealUserName}}</div>
+            </div>
+            <div class="_Acceptance_main_list" v-if="repairDetail.rp[0].status > 0">
+                <span>维修时间</span><div>{{repairDetail.rp[0].deal_time}}</div>
             </div>
         </div>
 

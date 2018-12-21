@@ -1,5 +1,5 @@
 <template>
-    <div id="Home">
+    <div id="Home" v-if="userId">
 
         <nav class="Home">
             <div class="Home_tab">
@@ -51,6 +51,9 @@ export default {
         },
         homeTab(){
             return this.$store.state.homeTab
+        },
+        userId(){
+            return this.$store.state.userId
         },
     },
     created(){

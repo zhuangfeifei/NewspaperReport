@@ -29,7 +29,7 @@
 
         <SupplementaryRecord-item v-if="repairDetail" :repairDetail="repairDetail"></SupplementaryRecord-item>
 
-        <div class="AcceptanceEnd_footer">
+        <div v-if="repairDetail.rp[0].status != 3" class="AcceptanceEnd_footer">
             <div @click="$router.push({path:'/Supplement'})">补充</div><div @click="confirm">维修确认</div>
         </div>
 

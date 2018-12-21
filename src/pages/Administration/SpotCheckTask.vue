@@ -32,8 +32,13 @@ export default {
     components: {
         
     },
+    beforeCreate(){
+        this.$store.dispatch('getMyTask', '0')
+    },
     computed: {
-        
+        list(){
+            return this.$store.state.list
+        }
     },
     created(){
         document.title = '点检任务'

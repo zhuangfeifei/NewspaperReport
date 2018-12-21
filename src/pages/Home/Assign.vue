@@ -21,7 +21,7 @@
             <span>附言</span><van-field class="Assign_input_" v-model="value" type="textarea" placeholder="对处理人说几句" rows="1" autosize/>
         </van-cell-group>
 
-        <div class="Assign_btn" @click="show = true">发送派单</div>
+        <div class="Assign_btn" @click="userList != '' ? show = true : ''">发送派单</div>
 
         <van-dialog v-model="show" show-cancel-button :before-close="beforeClose" :title="'指派维修人：'+userList.name"></van-dialog>
 
