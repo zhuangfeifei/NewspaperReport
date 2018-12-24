@@ -1,9 +1,9 @@
 <template>
-    <div id="AcceptanceEnd">
+    <div id="AcceptanceEnd" v-if="repairDetail">
 
         <Acceptance-item v-if="repairDetail" :repairDetail="repairDetail"></Acceptance-item>
 
-        <div class="AcceptanceEnd_main" v-if="repairDetail">
+        <div class="AcceptanceEnd_main">
             <div class="AcceptanceEnd_main_title">维修信息</div>
             <div class="AcceptanceEnd_main_content">
                 <div>
@@ -12,7 +12,7 @@
                         {{repairDetail.rp[0].deal_remark}}
                         <p class="SupplementaryRecord_list_img">
                             <span @click="play(repairDetail.rp[0].deal_audio_url)">语音</span><span>({{repairDetail.rp[0].deal_audio_url != '' ? 1 : 0}})</span>
-                            <span @click="imgPreview(repairDetail.rp[0].deal_path)">照片</span><span v-if="repairDetail.rp[0].deal_path">({{repairDetail.rp[0].deal_path.split(',').length}})</span></p>
+                            <span @click="imgPreview(repairDetail.rp[0].deal_path)">照片</span><span>({{repairDetail.rp[0].deal_path == '' ? 0 : repairDetail.rp[0].deal_path.split(',').length}})</span></p>
                     </section>
                 </div>
                 <div>
@@ -30,7 +30,7 @@
         <SupplementaryRecord-item v-if="repairDetail" :repairDetail="repairDetail"></SupplementaryRecord-item>
 
         <div v-if="repairDetail.rp[0].status != 3" class="AcceptanceEnd_footer">
-            <div @click="$router.push({path:'/Supplement'})">补充</div><div @click="confirm">维修确认</div>
+            <div @click="$router.push({path:'/Supplement',query:{id: repairId}})">补充</div><div @click="confirm">维修确认</div>
         </div>
 
         <audio id="myaudio" ref="myaudio">
@@ -70,7 +70,7 @@ export default {
     created(){
         document.title = '报修受理'
         
-        this.repairId = this.$route.query.repairId
+        this.repairId = this.$route.query.repairId    
     },
     methods: {
         sort(){

@@ -11,7 +11,7 @@
                             <div class="SupplementaryRecord_list_name"><span>{{item.suppleDeptName}} {{item.suppleUserName}}</span><span v-if="item.is_see == 1">报修人可见</span></div>
                             <p class="SupplementaryRecord_list_date">{{item.supple_time}}</p>
                             <div class="SupplementaryRecord_list_content">{{item.supple_remark}}</div>
-                            <p class="SupplementaryRecord_list_img"><span @click="play(item.supple_audio_url)">语音</span><span>({{item.supple_audio_url != '' ? 1 : 0}})</span><span @click="imgPreview(item.supple_path)">照片</span><span>({{item.supple_path.split(',').length || 0}})</span></p>
+                            <p class="SupplementaryRecord_list_img"><span @click="play(item.supple_audio_url)">语音</span><span>({{item.supple_audio_url != '' ? 1 : 0}})</span><span @click="imgPreview(item.supple_path)">照片</span><span>({{item.supple_path == '' ? 0 : item.supple_path.split(',').length}})</span></p>
                         </div>
                     </van-col>
                 </van-row>
